@@ -1,0 +1,2939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="theme-color" content="#0f4c3a">
+  <meta name="description" content="Thanigachalam Store - Fast offline grocery and bunk shop billing application">
+  <title>Store - Billing</title>
+
+  <!-- =====================================================================
+       style.css - Modular, minimal, high-contrast styles for speed & clarity
+       ===================================================================== -->
+  <style>
+    :root {
+      --bg-app: #f4f5f7;
+      --bg-surface: #ffffff;
+      --bg-muted: #e9ecef;
+      --bg-accent-subtle: #e6f4ea;
+      --bg-warning-subtle: #fff8e6;
+      --bg-danger-subtle: #fde8e8;
+
+      --text-primary: #111827;
+      --text-secondary: #4b5563;
+      --text-muted: #6b7280;
+      --text-inverse: #ffffff;
+
+      --primary: #0f5132;
+      --primary-hover: #0a3622;
+      --primary-border: #198754;
+
+      --secondary: #1d4ed8;
+      --secondary-hover: #1e40af;
+
+      --danger: #b91c1c;
+      --danger-hover: #991b1b;
+
+      --border-color: #d1d5db;
+      --border-strong: #9ca3af;
+      --focus-ring: #2563eb;
+
+      --header-height: 92px;
+      --sticky-bar-height: 68px;
+      --radius: 6px;
+    }
+
+    @media (min-width: 768px) {
+      :root {
+        --header-height: 60px;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Natural document scrolling across Android Chrome, Firefox, Edge, Safari & Desktop */
+    html {
+      min-height: 100%;
+      scroll-padding-top: calc(var(--header-height) + 12px);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+      color: var(--text-primary);
+      background-color: var(--bg-app);
+      overflow-y: auto;
+      touch-action: pan-x pan-y;
+    }
+
+    /* Lock background page scrolling ONLY when a modal popup is open */
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    /* Accessible Focus States */
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background: none;
+      color: inherit;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    input, select {
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text-primary);
+      background-color: var(--bg-surface);
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      width: 100%;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    /* ==================== HEADER & NAVIGATION ==================== */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: var(--primary);
+      color: var(--text-inverse);
+      border-bottom: 2px solid var(--primary-hover);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .shop-brand {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .offline-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 4px;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+      scrollbar-width: none;
+    }
+
+    .main-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-btn {
+      flex: 1;
+      min-height: 42px;
+      padding: 8px 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.88);
+      background-color: rgba(0, 0, 0, 0.15);
+      border-radius: var(--radius);
+      text-align: center;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .nav-btn:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    .nav-btn.active {
+      background-color: #ffffff;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .nav-bill-badge {
+      background-color: #fbbf24;
+      color: #111827;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .nav-bill-badge.visible {
+      display: inline-block;
+    }
+
+    @media (min-width: 768px) {
+      .header-inner {
+        flex-wrap: nowrap;
+        padding: 8px 20px;
+      }
+      .main-nav {
+        width: auto;
+      }
+      .nav-btn {
+        flex: initial;
+        padding: 8px 18px;
+      }
+    }
+
+    /* ==================== MAIN CONTAINER & VIEWS ==================== */
+    .app-main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 12px;
+      /* Extra bottom space so sticky bottom bar and status banner never block content */
+      padding-bottom: calc(var(--sticky-bar-height) + env(safe-area-inset-bottom, 0px) + 40px);
+    }
+
+    @media (min-width: 900px) {
+      .app-main {
+        padding: 16px 20px;
+        padding-bottom: 48px;
+      }
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    /* ==================== BUTTON UTILITIES ==================== */
+    .btn {
+      min-height: 44px;
+      padding: 10px 16px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: var(--radius);
+      border: 1.5px solid transparent;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--text-inverse);
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+    .btn-secondary:hover {
+      background-color: var(--bg-muted);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: var(--text-inverse);
+    }
+    .btn-danger:hover {
+      background-color: var(--danger-hover);
+    }
+
+    .btn-danger-outline {
+      background-color: var(--bg-surface);
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+    .btn-danger-outline:hover {
+      background-color: var(--bg-danger-subtle);
+    }
+
+    .btn-sm {
+      min-height: 36px;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    /* ==================== BILLING LAYOUT ==================== */
+    .billing-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (min-width: 900px) {
+      .billing-layout {
+        grid-template-columns: 1.45fr 1fr;
+        gap: 20px;
+      }
+    }
+
+    /* Catalog Panel (Left) */
+    .catalog-panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .search-bar-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .search-input {
+      padding-right: 44px;
+      min-height: 46px;
+      font-size: 1.05rem;
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 4px;
+      width: 38px;
+      height: 38px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+    }
+
+    .search-clear-btn.visible {
+      display: flex;
+    }
+
+    /* Category Filter Bar - Smooth horizontal touch scroll without blocking vertical scroll */
+    .category-filter-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      scrollbar-width: thin;
+    }
+
+    .cat-pill {
+      min-height: 40px;
+      padding: 6px 14px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      background-color: var(--bg-muted);
+      color: var(--text-primary);
+      border: 1.5px solid var(--border-color);
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .cat-pill:hover {
+      border-color: var(--border-strong);
+    }
+
+    .cat-pill.active {
+      background-color: var(--primary);
+      color: var(--text-inverse);
+      border-color: var(--primary);
+    }
+
+    /* Product Touch Grid */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 10px;
+    }
+
+    @media (min-width: 480px) {
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      }
+    }
+
+    .product-card-btn {
+      position: relative;
+      min-height: 92px;
+      padding: 12px 10px;
+      background-color: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      text-align: left;
+      width: 100%;
+    }
+
+    .product-card-btn:hover {
+      border-color: var(--primary);
+      background-color: var(--bg-accent-subtle);
+    }
+
+    .product-card-btn:active {
+      background-color: #d1e7dd;
+      border-color: var(--primary-hover);
+    }
+
+    .product-card-btn.in-bill {
+      border-color: var(--primary);
+      background-color: var(--bg-accent-subtle);
+    }
+
+    .prod-card-top {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .prod-card-name {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      word-break: break-word;
+      line-height: 1.25;
+    }
+
+    .prod-in-bill-badge {
+      background-color: var(--primary);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .prod-card-bottom {
+      width: 100%;
+      margin-top: 10px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .prod-card-price {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .prod-card-type {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background-color: var(--bg-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ==================== RUNNING BILL PANEL (Right / Bottom) ==================== */
+    /* Scrolls naturally with the document without inner scroll traps or fixed heights */
+    .bill-panel {
+      background-color: var(--bg-surface);
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      scroll-margin-top: calc(var(--header-height) + 12px);
+    }
+
+    .bill-header {
+      padding: 12px 14px;
+      background-color: var(--bg-muted);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-top-left-radius: calc(var(--radius) - 2px);
+      border-top-right-radius: calc(var(--radius) - 2px);
+    }
+
+    .bill-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bill-count-pill {
+      background-color: var(--primary);
+      color: #ffffff;
+      font-size: 0.82rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .bill-items-list {
+      min-height: 120px;
+    }
+
+    .bill-empty-state {
+      padding: 36px 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.98rem;
+    }
+
+    .bill-item-row {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .bill-item-row:last-child {
+      border-bottom: none;
+    }
+
+    .bill-item-info {
+      flex: 1;
+      min-width: 130px;
+    }
+
+    .bill-item-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .bill-item-sub {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .bill-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .qty-btn {
+      width: 38px;
+      height: 38px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      background-color: var(--bg-muted);
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qty-btn:hover {
+      background-color: #d1d5db;
+    }
+
+    .qty-value-btn {
+      min-width: 44px;
+      height: 38px;
+      padding: 0 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+    }
+
+    .qty-value-btn.editable {
+      border-color: var(--secondary);
+      color: var(--secondary);
+      background-color: #eff6ff;
+      text-decoration: underline;
+    }
+
+    .bill-item-total {
+      min-width: 72px;
+      text-align: right;
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .remove-item-btn {
+      width: 38px;
+      height: 38px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--danger);
+      background-color: var(--bg-danger-subtle);
+      border: 1px solid #f8b4b4;
+      border-radius: var(--radius);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 2px;
+    }
+
+    .remove-item-btn:hover {
+      background-color: var(--danger);
+      color: #ffffff;
+    }
+
+    /* Bill Footer Inside Panel */
+    .bill-footer {
+      padding: 14px;
+      background-color: var(--bg-accent-subtle);
+      border-top: 2px solid var(--primary);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-bottom-left-radius: calc(var(--radius) - 2px);
+      border-bottom-right-radius: calc(var(--radius) - 2px);
+    }
+
+    .bill-grand-total-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .bill-grand-label {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .bill-grand-amount {
+      font-size: 1.85rem;
+      font-weight: 900;
+      color: var(--primary);
+    }
+
+    /* ==================== STICKY MOBILE BOTTOM TOTAL BAR ==================== */
+    .sticky-bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      min-height: var(--sticky-bar-height);
+      height: auto;
+      background-color: #111827;
+      color: #ffffff;
+      z-index: 90;
+      border-top: 2px solid var(--primary);
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (min-width: 900px) {
+      .sticky-bottom-bar {
+        display: none !important;
+      }
+    }
+
+    .sticky-total-info {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .sticky-items-sub {
+      font-size: 0.78rem;
+      color: #d1d5db;
+      font-weight: 600;
+    }
+
+    .sticky-total-val {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #4ade80;
+      line-height: 1.1;
+    }
+
+    .sticky-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-sticky-view {
+      background-color: #374151;
+      color: #ffffff;
+      border: 1px solid #6b7280;
+      min-height: 46px;
+      padding: 8px 12px;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .btn-sticky-new {
+      background-color: #dc2626;
+      color: #ffffff;
+      min-height: 46px;
+      padding: 8px 14px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    /* ==================== SECTION HEADERS & PANELS ==================== */
+    .section-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      scroll-margin-top: calc(var(--header-height) + 12px);
+    }
+
+    .section-top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (min-width: 600px) {
+      .filter-row {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    /* ==================== DATA LISTS (PRODUCTS & CATEGORIES) ==================== */
+    .data-list {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+    }
+
+    .data-list-item {
+      padding: 12px 14px;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .data-list-item:first-child {
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+    }
+
+    .data-list-item:last-child {
+      border-bottom: none;
+      border-bottom-left-radius: var(--radius);
+      border-bottom-right-radius: var(--radius);
+    }
+
+    .data-list-item.disabled-item {
+      background-color: #f9fafb;
+      opacity: 0.72;
+    }
+
+    .item-main-col {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .item-title-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .item-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .badge-cat {
+      background-color: #e0e7ff;
+      color: #1e3a8a;
+    }
+
+    .badge-piece {
+      background-color: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .badge-weight {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .badge-disabled {
+      background-color: var(--bg-danger-subtle);
+      color: var(--danger);
+    }
+
+    .item-price-meta {
+      margin-top: 4px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .item-actions-col {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ==================== SETTINGS STYLES ==================== */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .settings-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .form-hint {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .error-msg {
+      color: var(--danger);
+      background-color: var(--bg-danger-subtle);
+      border: 1px solid #f8b4b4;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* ==================== MODALS / POPUPS ==================== */
+    /* Uses align-items: flex-start + margin: auto on .modal-box so tall modals
+       and virtual keyboard popups scroll smoothly without clipping top/bottom */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(17, 24, 39, 0.65);
+      z-index: 200;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 16px 12px calc(24px + env(safe-area-inset-bottom, 0px));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background-color: var(--bg-surface);
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 440px;
+      margin: auto 0;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header {
+      padding: 14px 16px;
+      background-color: var(--bg-muted);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-top-left-radius: calc(var(--radius) - 2px);
+      border-top-right-radius: calc(var(--radius) - 2px);
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .modal-body {
+      padding: 16px;
+    }
+
+    .modal-footer {
+      padding: 12px 16px;
+      background-color: var(--bg-muted);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      border-bottom-left-radius: calc(var(--radius) - 2px);
+      border-bottom-right-radius: calc(var(--radius) - 2px);
+    }
+
+    /* Checklist inside Assign Products modal */
+    .assign-checklist {
+      max-height: 45vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 8px;
+    }
+
+    /* Weight Popup Specifics */
+    .weight-mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .mode-tab-btn {
+      min-height: 46px;
+      padding: 8px;
+      font-weight: 700;
+      border: 2px solid var(--border-strong);
+      background-color: var(--bg-surface);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+
+    .mode-tab-btn.active {
+      background-color: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .quick-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .preset-chip {
+      min-height: 36px;
+      padding: 4px 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      background-color: var(--bg-muted);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+    }
+
+    .preset-chip:hover {
+      background-color: #d1d5db;
+    }
+
+    .weight-calc-preview {
+      margin-top: 12px;
+      padding: 12px;
+      background-color: var(--bg-accent-subtle);
+      border: 1.5px solid var(--primary-border);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .calc-preview-details {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .calc-preview-total {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--primary);
+    }
+
+    /* Status Toast Bar */
+    .status-banner {
+      position: fixed;
+      bottom: calc(var(--sticky-bar-height) + env(safe-area-inset-bottom, 0px) + 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #111827;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.95rem;
+      z-index: 300;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+      max-width: 92vw;
+      text-align: center;
+    }
+
+    .status-banner.visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="app-header" id="appHeader">
+    <div class="header-inner">
+      <div class="shop-brand">
+        <span id="headerShopName">Store</span>
+        <span class="offline-badge">Offline</span>
+      </div>
+      <nav class="main-nav" aria-label="Main Navigation" id="mainNav">
+        <button type="button" class="nav-btn active" data-nav="billing">
+          Billing <span id="navBillBadge" class="nav-bill-badge">0</span>
+        </button>
+        <button type="button" class="nav-btn" data-nav="products">Products</button>
+        <button type="button" class="nav-btn" data-nav="categories">Categories</button>
+        <button type="button" class="nav-btn" data-nav="settings">Settings</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="app-main">
+
+    <!-- 1. BILLING SECTION -->
+    <section id="view-billing" class="view-section active" aria-label="Billing Section">
+      <div class="billing-layout">
+
+        <!-- Left: Products Catalog -->
+        <div class="catalog-panel">
+          <div class="search-bar-wrap">
+            <input
+              type="search"
+              id="billingSearchInput"
+              class="search-input"
+              placeholder="Search item (e.g. Tea, Onion, Rice)..."
+              aria-label="Search products for billing"
+              autocomplete="off"
+            >
+            <button type="button" id="billingSearchClear" class="search-clear-btn" aria-label="Clear search">&times;</button>
+          </div>
+
+          <!-- Category Filter Pills -->
+          <div id="billingCategoryBar" class="category-filter-bar" role="tablist" aria-label="Filter by category"></div>
+
+          <!-- Product Touch Grid -->
+          <div id="billingProductGrid" class="product-grid" aria-live="polite"></div>
+        </div>
+
+        <!-- Right: Running Bill Panel -->
+        <div id="runningBillPanel" class="bill-panel">
+          <div class="bill-header">
+            <div class="bill-title">
+              <span>Current Bill</span>
+              <span id="billItemCountPill" class="bill-count-pill">0 items</span>
+            </div>
+            <button type="button" id="btnNewBillTop" class="btn btn-danger btn-sm">New Bill</button>
+          </div>
+
+          <div id="billItemsList" class="bill-items-list"></div>
+
+          <div class="bill-footer">
+            <div class="bill-grand-total-row">
+              <span class="bill-grand-label">Total</span>
+              <span id="billGrandTotal" class="bill-grand-amount">₹0</span>
+            </div>
+            <button type="button" id="btnNewBillBottom" class="btn btn-danger btn-block">
+              New Bill (Clear)
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. PRODUCTS SECTION -->
+    <section id="view-products" class="view-section" aria-label="Products Management">
+      <div class="section-card">
+        <div class="section-top-bar">
+          <h1 class="section-title">Products</h1>
+          <button type="button" id="btnOpenAddProduct" class="btn btn-primary">+ Add Product</button>
+        </div>
+
+        <div class="filter-row">
+          <div class="search-bar-wrap" style="margin-bottom:0;">
+            <input
+              type="search"
+              id="productManageSearch"
+              class="search-input"
+              placeholder="Search products by name..."
+              aria-label="Search products list"
+              autocomplete="off"
+            >
+            <button type="button" id="productManageSearchClear" class="search-clear-btn" aria-label="Clear product search">&times;</button>
+          </div>
+          <div>
+            <select id="productManageCatFilter" aria-label="Filter products by category" style="min-height:46px;"></select>
+          </div>
+        </div>
+
+        <div id="productsManageList" class="data-list"></div>
+      </div>
+    </section>
+
+    <!-- 3. CATEGORIES SECTION -->
+    <section id="view-categories" class="view-section" aria-label="Categories Management">
+      <div class="section-card">
+        <div class="section-top-bar">
+          <h1 class="section-title">Categories</h1>
+          <button type="button" id="btnOpenAddCategory" class="btn btn-primary">+ Add Category</button>
+        </div>
+        <div id="categoriesManageList" class="data-list"></div>
+      </div>
+    </section>
+
+    <!-- 4. SETTINGS SECTION -->
+    <section id="view-settings" class="view-section" aria-label="Application Settings">
+      <div class="settings-grid">
+
+        <!-- Shop Profile Settings -->
+        <div class="section-card">
+          <div class="section-top-bar">
+            <h2 class="section-title">Shop Settings</h2>
+          </div>
+          <form id="settingsForm" novalidate>
+            <div id="settingsError" class="error-msg" role="alert"></div>
+            <div class="form-group">
+              <label class="form-label" for="settingShopName">Shop Name</label>
+              <input type="text" id="settingShopName" required placeholder="Thanigachalam Store">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="settingCurrency">Currency Symbol</label>
+              <input type="text" id="settingCurrency" required placeholder="₹" maxlength="5">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+          </form>
+        </div>
+
+        <!-- Backup & Restore -->
+        <div class="section-card">
+          <div class="section-top-bar">
+            <h2 class="section-title">Data Backup &amp; Restore</h2>
+          </div>
+          <div class="form-group">
+            <p class="form-hint" style="margin-bottom: 10px;">
+              Download a full JSON backup of your products, categories, settings, and current bill.
+            </p>
+            <button type="button" id="btnExportJson" class="btn btn-secondary btn-block">
+              Export JSON Backup
+            </button>
+          </div>
+
+          <div class="form-group" style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-color);">
+            <label class="form-label" for="importJsonInput">Import JSON Backup</label>
+            <input type="file" id="importJsonInput" accept=".json,application/json">
+            <p class="form-hint">Restores all products, categories, settings, and current bill from an exported JSON file.</p>
+          </div>
+
+          <div class="form-group" style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-color);">
+            <label class="form-label" style="color: var(--danger);">Danger Zone</label>
+            <button type="button" id="btnClearAllData" class="btn btn-danger btn-block">
+              Clear All Data
+            </button>
+            <p class="form-hint">Deletes all products, categories, current bill, and resets settings.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- About Card -->
+      <div class="section-card">
+        <div class="section-top-bar">
+          <h2 class="section-title">About</h2>
+        </div>
+        <p style="margin-bottom: 8px;"><strong>Thanigachalam Store - Fast Offline Billing App</strong></p>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+          Designed specifically for Tamil Nadu grocery and bunk shops. Works 100% offline using browser Local Storage with instant piece and weight/amount billing calculation.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== STICKY MOBILE BOTTOM BAR (BILLING) ==================== -->
+  <div id="stickyBottomBar" class="sticky-bottom-bar" role="region" aria-label="Running Bill Summary">
+    <div class="sticky-total-info" id="stickyScrollToBill" tabindex="0" role="button" aria-label="Jump to bill details">
+      <span id="stickyItemCount" class="sticky-items-sub">0 items in bill</span>
+      <span id="stickyTotalAmount" class="sticky-total-val">₹0</span>
+    </div>
+    <div class="sticky-actions">
+      <button type="button" id="btnStickyViewBill" class="btn btn-sticky-view">Bill &uarr;</button>
+      <button type="button" id="btnStickyNewBill" class="btn btn-sticky-new">New Bill</button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 1: WEIGHT / AMOUNT POPUP ==================== -->
+  <div id="modal-weight" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="weightModalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <h2 id="weightModalTitle" class="modal-title">Product Name</h2>
+          <div id="weightModalRate" style="font-size: 0.9rem; font-weight: 700; color: var(--primary);">₹100 / kg</div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="true">Cancel</button>
+      </div>
+      <form id="weightEntryForm" novalidate>
+        <div class="modal-body">
+          <div id="weightModalError" class="error-msg" role="alert"></div>
+
+          <div class="weight-mode-tabs" role="radiogroup" aria-label="Entry Mode">
+            <button type="button" id="modeBtnWeight" class="mode-tab-btn active" data-weight-mode="weight">
+              Weight (grams)
+            </button>
+            <button type="button" id="modeBtnAmount" class="mode-tab-btn" data-weight-mode="amount">
+              Amount (<span class="currency-label">₹</span>)
+            </button>
+          </div>
+
+          <div id="weightPresetsContainer" class="quick-presets"></div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label id="weightInputLabel" class="form-label" for="weightModalInput">Enter Weight in Grams (g)</label>
+            <input
+              type="number"
+              id="weightModalInput"
+              step="any"
+              min="1"
+              placeholder="e.g. 500 or 720"
+              required
+              inputmode="decimal"
+            >
+          </div>
+
+          <div class="weight-calc-preview">
+            <div class="calc-preview-details" id="weightCalcDetails">0g (0 kg)</div>
+            <div class="calc-preview-total" id="weightCalcTotal">₹0</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="true">Cancel</button>
+          <button type="submit" id="weightSubmitBtn" class="btn btn-primary">Add to Bill</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: ADD / EDIT PRODUCT ==================== -->
+  <div id="modal-product-form" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="productModalTitle" class="modal-title">Add Product</h2>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="true">Cancel</button>
+      </div>
+      <form id="productForm" novalidate>
+        <div class="modal-body">
+          <div id="productFormError" class="error-msg" role="alert"></div>
+          <input type="hidden" id="prodFormId">
+
+          <div class="form-group">
+            <label class="form-label" for="prodFormName">Product Name</label>
+            <input type="text" id="prodFormName" required placeholder="e.g. Onion, Tea, Ponni Rice">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="prodFormCategory">Category</label>
+            <select id="prodFormCategory" required></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="prodFormType">Pricing Type</label>
+            <select id="prodFormType" required>
+              <option value="piece">Piece (per item)</option>
+              <option value="weight">Weight (per kg)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" id="prodFormPriceLabel" for="prodFormPrice">Price per Piece (₹)</label>
+            <input type="number" id="prodFormPrice" step="any" min="0.01" required placeholder="e.g. 15" inputmode="decimal">
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="prodFormStatus">Status</label>
+            <select id="prodFormStatus">
+              <option value="enabled">Enabled (Visible in Billing)</option>
+              <option value="disabled">Disabled (Hidden in Billing)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="true">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: ADD / RENAME CATEGORY ==================== -->
+  <div id="modal-category-form" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="categoryModalTitle" class="modal-title">Add Category</h2>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="true">Cancel</button>
+      </div>
+      <form id="categoryForm" novalidate>
+        <div class="modal-body">
+          <div id="categoryFormError" class="error-msg" role="alert"></div>
+          <input type="hidden" id="catFormId">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="catFormName">Category Name</label>
+            <input type="text" id="catFormName" required placeholder="e.g. Tea & Snacks, Vegetables">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="true">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 4: ASSIGN PRODUCTS TO CATEGORY ==================== -->
+  <div id="modal-category-assign" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="assignModalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="assignModalTitle" class="modal-title">Assign Products</h2>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="true">Close</button>
+      </div>
+      <form id="categoryAssignForm">
+        <div class="modal-body">
+          <p id="assignModalHint" class="form-hint" style="margin-bottom: 10px;"></p>
+          <input type="hidden" id="assignCatId">
+          <div id="assignProductsChecklist" class="assign-checklist"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="true">Cancel</button>
+          <button type="submit" class="btn btn-primary">Apply Assignment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 5: CONFIRMATION DIALOG ==================== -->
+  <div id="modal-confirm" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="confirmModalTitle" class="modal-title">Confirm Action</h2>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="true">Cancel</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMessage" style="font-size: 1.02rem; font-weight: 500;"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal="true">Cancel</button>
+        <button type="button" id="btnConfirmProceed" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Toast Notification -->
+  <div id="statusBanner" class="status-banner" role="status" aria-live="polite"></div>
+
+  <!-- =====================================================================
+       script.js - Modular Vanilla JavaScript for State, History, Billing & CRUD
+       ===================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ===================================================================
+         1. CONSTANTS & DEFAULT SAMPLE DATA (Tamil Nadu Grocery / Bunk Shop)
+         =================================================================== */
+      const STORAGE_KEYS = {
+        SETTINGS: 'thanigachalam_settings_v1',
+        CATEGORIES: 'thanigachalam_categories_v1',
+        PRODUCTS: 'thanigachalam_products_v1',
+        CURRENT_BILL: 'thanigachalam_current_bill_v1'
+      };
+
+      const DEFAULT_SETTINGS = {
+        shopName: 'Thanigachalam Store',
+        currency: '₹'
+      };
+
+      const DEFAULT_CATEGORIES = [
+        { id: 'cat_tea', name: 'Tea & Snacks' },
+        { id: 'cat_veg', name: 'Vegetables' },
+        { id: 'cat_groc', name: 'Groceries' },
+        { id: 'cat_drinks', name: 'Cool Drinks' }
+      ];
+
+      const DEFAULT_PRODUCTS = [
+        { id: 'prd_1', name: 'Tea', categoryId: 'cat_tea', pricingType: 'piece', price: 15, status: 'enabled' },
+        { id: 'prd_2', name: 'Coffee', categoryId: 'cat_tea', pricingType: 'piece', price: 20, status: 'enabled' },
+        { id: 'prd_3', name: 'Samosa', categoryId: 'cat_tea', pricingType: 'piece', price: 15, status: 'enabled' },
+        { id: 'prd_4', name: 'Medhu Vadai', categoryId: 'cat_tea', pricingType: 'piece', price: 10, status: 'enabled' },
+        { id: 'prd_5', name: 'Onion', categoryId: 'cat_veg', pricingType: 'weight', price: 100, status: 'enabled' },
+        { id: 'prd_6', name: 'Tomato', categoryId: 'cat_veg', pricingType: 'weight', price: 60, status: 'enabled' },
+        { id: 'prd_7', name: 'Potato', categoryId: 'cat_veg', pricingType: 'weight', price: 45, status: 'enabled' },
+        { id: 'prd_8', name: 'Green Chilli', categoryId: 'cat_veg', pricingType: 'weight', price: 80, status: 'enabled' },
+        { id: 'prd_9', name: 'Sugar', categoryId: 'cat_groc', pricingType: 'weight', price: 44, status: 'enabled' },
+        { id: 'prd_10', name: 'Ponni Rice', categoryId: 'cat_groc', pricingType: 'weight', price: 65, status: 'enabled' },
+        { id: 'prd_11', name: 'Toor Dal', categoryId: 'cat_groc', pricingType: 'weight', price: 140, status: 'enabled' },
+        { id: 'prd_12', name: 'Gold Winner Oil 1L', categoryId: 'cat_groc', pricingType: 'piece', price: 155, status: 'enabled' },
+        { id: 'prd_13', name: 'Bovonto 500ml', categoryId: 'cat_drinks', pricingType: 'piece', price: 35, status: 'enabled' },
+        { id: 'prd_14', name: 'Lemon Soda', categoryId: 'cat_drinks', pricingType: 'piece', price: 20, status: 'enabled' }
+      ];
+
+      const WEIGHT_PRESETS_GRAMS = [50, 100, 250, 500, 750, 1000, 2000];
+      const WEIGHT_PRESETS_AMOUNT = [10, 20, 30, 50, 100, 200];
+
+      /* ===================================================================
+         2. APPLICATION STATE
+         =================================================================== */
+      const state = {
+        settings: { ...DEFAULT_SETTINGS },
+        categories: [],
+        products: [],
+        currentBill: [],
+
+        // UI State
+        currentPage: 'billing',
+        activeModal: null,
+        billingCategoryFilter: 'all',
+        billingSearchQuery: '',
+        productManageSearchQuery: '',
+        productManageCatFilter: 'all',
+
+        // Weight Modal Context
+        weightContext: {
+          product: null,
+          editingBillItemId: null,
+          mode: 'weight' // 'weight' (grams) or 'amount' (currency)
+        },
+
+        // Confirm Modal Callback
+        confirmCallback: null
+      };
+
+      /* ===================================================================
+         3. UTILITY & FORMATTING FUNCTIONS
+         =================================================================== */
+      function generateId(prefix) {
+        return prefix + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
+      }
+
+      function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str == null ? '' : String(str);
+        return div.innerHTML;
+      }
+
+      function formatNumber(num) {
+        const rounded = Math.round((Number(num) + Number.EPSILON) * 100) / 100;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2).replace(/\.?0+$/, '');
+      }
+
+      function formatCurrency(amount) {
+        return state.settings.currency + formatNumber(amount);
+      }
+
+      function formatGramsDisplay(grams) {
+        const g = Math.round(grams);
+        return g + 'g';
+      }
+
+      let toastTimer = null;
+      function showStatusToast(message) {
+        const banner = document.getElementById('statusBanner');
+        banner.textContent = message;
+        banner.classList.add('visible');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          banner.classList.remove('visible');
+        }, 2400);
+      }
+
+      /**
+       * Keeps --header-height CSS custom property synced with actual sticky header height
+       * so scroll-padding-top and scroll-margin-top never allow sticky header to cover content.
+       */
+      function syncStickyHeaderHeight() {
+        const header = document.getElementById('appHeader');
+        if (header) {
+          const h = header.offsetHeight;
+          if (h > 0) {
+            document.documentElement.style.setProperty('--header-height', h + 'px');
+          }
+        }
+      }
+
+      /* ===================================================================
+         4. LOCAL STORAGE MANAGEMENT
+         =================================================================== */
+      function loadFromStorage() {
+        try {
+          const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+          const savedCategories = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+          const savedProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+          const savedBill = localStorage.getItem(STORAGE_KEYS.CURRENT_BILL);
+
+          state.settings = savedSettings ? JSON.parse(savedSettings) : { ...DEFAULT_SETTINGS };
+          state.categories = savedCategories ? JSON.parse(savedCategories) : JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+          state.products = savedProducts ? JSON.parse(savedProducts) : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+          state.currentBill = savedBill ? JSON.parse(savedBill) : [];
+
+          if (!savedSettings) saveSettings();
+          if (!savedCategories) saveCategories();
+          if (!savedProducts) saveProducts();
+          if (!savedBill) saveBill();
+        } catch (err) {
+          console.error('Local Storage read error:', err);
+          state.settings = { ...DEFAULT_SETTINGS };
+          state.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+          state.products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+          state.currentBill = [];
+        }
+      }
+
+      function saveSettings() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(state.settings));
+        } catch (e) { console.error(e); }
+      }
+
+      function saveCategories() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(state.categories));
+        } catch (e) { console.error(e); }
+      }
+
+      function saveProducts() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(state.products));
+        } catch (e) { console.error(e); }
+      }
+
+      function saveBill() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.CURRENT_BILL, JSON.stringify(state.currentBill));
+        } catch (e) { console.error(e); }
+      }
+
+      /* ===================================================================
+         5. SPA NAVIGATION & HISTORY API (ANDROID / BROWSER BACK BUTTON)
+         =================================================================== */
+      function initNavigationHistory() {
+        const initialHistoryState = { page: 'billing', modal: null };
+        window.history.replaceState(initialHistoryState, '');
+
+        window.addEventListener('popstate', function (event) {
+          const histState = event.state || { page: 'billing', modal: null };
+          applyNavigationState(histState);
+        });
+      }
+
+      function applyNavigationState(histState) {
+        const targetPage = histState.page || 'billing';
+        const targetModal = histState.modal || null;
+        const pageChanged = state.currentPage !== targetPage;
+
+        // 1. Update active modal visibility and body scroll lock
+        state.activeModal = targetModal;
+        const allModals = document.querySelectorAll('.modal-backdrop');
+        allModals.forEach(m => m.classList.remove('open'));
+
+        if (targetModal) {
+          const modalEl = document.getElementById('modal-' + targetModal);
+          if (modalEl) {
+            modalEl.classList.add('open');
+            modalEl.scrollTop = 0;
+            document.body.classList.add('modal-open');
+          } else {
+            document.body.classList.remove('modal-open');
+          }
+        } else {
+          document.body.classList.remove('modal-open');
+          state.confirmCallback = null;
+        }
+
+        // 2. Update active page view
+        if (pageChanged) {
+          state.currentPage = targetPage;
+        }
+        renderActivePage();
+
+        // Reset scroll to top when switching between main sections
+        if (pageChanged) {
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        }
+      }
+
+      function navigateToPage(targetPage) {
+        if (state.activeModal) {
+          closeActiveModal();
+        }
+
+        if (targetPage === state.currentPage) return;
+
+        if (targetPage === 'billing') {
+          window.history.back();
+        } else {
+          if (state.currentPage === 'billing') {
+            const nextState = { page: targetPage, modal: null };
+            window.history.pushState(nextState, '');
+            applyNavigationState(nextState);
+          } else {
+            const nextState = { page: targetPage, modal: null };
+            window.history.replaceState(nextState, '');
+            applyNavigationState(nextState);
+          }
+        }
+      }
+
+      function openModal(modalId) {
+        const nextState = { page: state.currentPage, modal: modalId };
+        window.history.pushState(nextState, '');
+        applyNavigationState(nextState);
+      }
+
+      function closeActiveModal() {
+        if (!state.activeModal) {
+          document.body.classList.remove('modal-open');
+          return;
+        }
+        const allModals = document.querySelectorAll('.modal-backdrop');
+        allModals.forEach(m => m.classList.remove('open'));
+        document.body.classList.remove('modal-open');
+        state.activeModal = null;
+
+        if (window.history.state && window.history.state.modal) {
+          window.history.back();
+        }
+      }
+
+      function openConfirmDialog(title, message, confirmBtnText, onConfirm) {
+        document.getElementById('confirmModalTitle').textContent = title;
+        document.getElementById('confirmModalMessage').textContent = message;
+        document.getElementById('btnConfirmProceed').textContent = confirmBtnText || 'Confirm';
+        state.confirmCallback = onConfirm;
+        openModal('confirm');
+      }
+
+      /* ===================================================================
+         6. RENDERING LOGIC
+         =================================================================== */
+      function renderAppHeader() {
+        document.getElementById('headerShopName').textContent = state.settings.shopName;
+        document.title = state.settings.shopName + ' - Billing';
+        document.querySelectorAll('.currency-label').forEach(el => {
+          el.textContent = state.settings.currency;
+        });
+
+        document.querySelectorAll('#mainNav .nav-btn').forEach(btn => {
+          const navTarget = btn.getAttribute('data-nav');
+          btn.classList.toggle('active', navTarget === state.currentPage);
+        });
+
+        const badge = document.getElementById('navBillBadge');
+        const count = state.currentBill.length;
+        badge.textContent = count;
+        badge.classList.toggle('visible', count > 0);
+
+        syncStickyHeaderHeight();
+      }
+
+      function renderActivePage() {
+        renderAppHeader();
+
+        document.querySelectorAll('.view-section').forEach(sec => {
+          sec.classList.toggle('active', sec.id === 'view-' + state.currentPage);
+        });
+
+        const stickyBar = document.getElementById('stickyBottomBar');
+        stickyBar.style.display = state.currentPage === 'billing' ? '' : 'none';
+
+        if (state.currentPage === 'billing') {
+          renderBillingCategories();
+          renderBillingProducts();
+          renderRunningBill();
+        } else if (state.currentPage === 'products') {
+          renderProductsManagement();
+        } else if (state.currentPage === 'categories') {
+          renderCategoriesManagement();
+        } else if (state.currentPage === 'settings') {
+          renderSettingsForm();
+        }
+      }
+
+      /* -------------------- BILLING PAGE RENDER -------------------- */
+      function renderBillingCategories() {
+        const container = document.getElementById('billingCategoryBar');
+        if (
+          state.billingCategoryFilter !== 'all' &&
+          !state.categories.some(c => c.id === state.billingCategoryFilter)
+        ) {
+          state.billingCategoryFilter = 'all';
+        }
+
+        let html = `<button type="button" class="cat-pill ${state.billingCategoryFilter === 'all' ? 'active' : ''}" data-cat-id="all">All Items</button>`;
+        for (let i = 0; i < state.categories.length; i++) {
+          const cat = state.categories[i];
+          const isActive = state.billingCategoryFilter === cat.id ? 'active' : '';
+          html += `<button type="button" class="cat-pill ${isActive}" data-cat-id="${escapeHtml(cat.id)}">${escapeHtml(cat.name)}</button>`;
+        }
+        container.innerHTML = html;
+      }
+
+      function renderBillingProducts() {
+        const grid = document.getElementById('billingProductGrid');
+        const query = state.billingSearchQuery.trim().toLowerCase();
+        const catFilter = state.billingCategoryFilter;
+
+        const billMap = {};
+        for (let i = 0; i < state.currentBill.length; i++) {
+          const item = state.currentBill[i];
+          if (!billMap[item.productId]) {
+            billMap[item.productId] = { count: 0, grams: 0, pricingType: item.pricingType };
+          }
+          if (item.pricingType === 'piece') {
+            billMap[item.productId].count += item.quantity;
+          } else {
+            billMap[item.productId].grams += item.weightGrams;
+          }
+        }
+
+        const filtered = state.products.filter(p => {
+          if (p.status !== 'enabled') return false;
+          if (catFilter !== 'all' && p.categoryId !== catFilter) return false;
+          if (query && !p.name.toLowerCase().includes(query)) return false;
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          grid.innerHTML = `<div style="grid-column: 1 / -1; padding: 28px; text-align: center; color: var(--text-muted);">No matching enabled products found.</div>`;
+          return;
+        }
+
+        let html = '';
+        for (let i = 0; i < filtered.length; i++) {
+          const prod = filtered[i];
+          const inBill = billMap[prod.id];
+          const inBillClass = inBill ? 'in-bill' : '';
+          let badgeHtml = '';
+
+          if (inBill) {
+            const badgeText = prod.pricingType === 'piece'
+              ? `×${inBill.count}`
+              : formatGramsDisplay(inBill.grams);
+            badgeHtml = `<span class="prod-in-bill-badge">${escapeHtml(badgeText)}</span>`;
+          }
+
+          const priceDisplay = prod.pricingType === 'piece'
+            ? formatCurrency(prod.price)
+            : `${formatCurrency(prod.price)}/kg`;
+
+          const typeLabel = prod.pricingType === 'piece' ? 'Piece' : 'Weight';
+
+          html += `
+            <button type="button" class="product-card-btn ${inBillClass}" data-product-id="${escapeHtml(prod.id)}">
+              <div class="prod-card-top">
+                <span class="prod-card-name">${escapeHtml(prod.name)}</span>
+                ${badgeHtml}
+              </div>
+              <div class="prod-card-bottom">
+                <span class="prod-card-price">${escapeHtml(priceDisplay)}</span>
+                <span class="prod-card-type">${typeLabel}</span>
+              </div>
+            </button>
+          `;
+        }
+        grid.innerHTML = html;
+      }
+
+      function renderRunningBill() {
+        const listEl = document.getElementById('billItemsList');
+        const totalEl = document.getElementById('billGrandTotal');
+        const countPill = document.getElementById('billItemCountPill');
+        const stickyCountEl = document.getElementById('stickyItemCount');
+        const stickyTotalEl = document.getElementById('stickyTotalAmount');
+
+        const itemCount = state.currentBill.length;
+        const itemWord = itemCount === 1 ? '1 item' : `${itemCount} items`;
+        countPill.textContent = itemWord;
+        stickyCountEl.textContent = itemWord + ' in bill';
+
+        let grandTotal = 0;
+
+        if (itemCount === 0) {
+          listEl.innerHTML = `<div class="bill-empty-state">Tap any product to add to bill.</div>`;
+          totalEl.textContent = formatCurrency(0);
+          stickyTotalEl.textContent = formatCurrency(0);
+          renderAppHeader();
+          return;
+        }
+
+        let html = '';
+        for (let i = 0; i < state.currentBill.length; i++) {
+          const item = state.currentBill[i];
+          grandTotal += item.amount;
+
+          if (item.pricingType === 'piece') {
+            html += `
+              <div class="bill-item-row" data-bill-id="${escapeHtml(item.billItemId)}">
+                <div class="bill-item-info">
+                  <div class="bill-item-name">${escapeHtml(item.name)}</div>
+                  <div class="bill-item-sub">${formatCurrency(item.unitPrice)} × ${item.quantity} = ${formatCurrency(item.amount)}</div>
+                </div>
+                <div class="bill-item-controls">
+                  <button type="button" class="qty-btn" data-bill-action="dec" aria-label="Decrease quantity">&minus;</button>
+                  <span class="qty-value-btn">×${item.quantity}</span>
+                  <button type="button" class="qty-btn" data-bill-action="inc" aria-label="Increase quantity">&#43;</button>
+                  <div class="bill-item-total">${formatCurrency(item.amount)}</div>
+                  <button type="button" class="remove-item-btn" data-bill-action="remove" aria-label="Remove item">&times;</button>
+                </div>
+              </div>
+            `;
+          } else {
+            html += `
+              <div class="bill-item-row" data-bill-id="${escapeHtml(item.billItemId)}">
+                <div class="bill-item-info">
+                  <div class="bill-item-name">${escapeHtml(item.name)}</div>
+                  <div class="bill-item-sub">${formatGramsDisplay(item.weightGrams)} &bull; (${formatCurrency(item.unitPrice)}/kg)</div>
+                </div>
+                <div class="bill-item-controls">
+                  <button type="button" class="qty-btn" data-bill-action="dec-weight" title="Minus 50g" aria-label="Decrease weight by 50g">&minus;</button>
+                  <button type="button" class="qty-value-btn editable" data-bill-action="edit-weight" title="Tap to edit weight or amount">
+                    ${formatGramsDisplay(item.weightGrams)}
+                  </button>
+                  <button type="button" class="qty-btn" data-bill-action="inc-weight" title="Plus 50g" aria-label="Increase weight by 50g">&#43;</button>
+                  <div class="bill-item-total">${formatCurrency(item.amount)}</div>
+                  <button type="button" class="remove-item-btn" data-bill-action="remove" aria-label="Remove item">&times;</button>
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        listEl.innerHTML = html;
+        const formattedGrand = formatCurrency(grandTotal);
+        totalEl.textContent = formattedGrand;
+        stickyTotalEl.textContent = formattedGrand;
+        renderAppHeader();
+      }
+
+      /* -------------------- PRODUCTS MANAGEMENT RENDER -------------------- */
+      function getCategoryName(categoryId) {
+        const cat = state.categories.find(c => c.id === categoryId);
+        return cat ? cat.name : 'Uncategorized';
+      }
+
+      function renderProductsManagement() {
+        const catSelect = document.getElementById('productManageCatFilter');
+        let catOptions = `<option value="all">All Categories</option>`;
+        for (let i = 0; i < state.categories.length; i++) {
+          const c = state.categories[i];
+          const selected = state.productManageCatFilter === c.id ? 'selected' : '';
+          catOptions += `<option value="${escapeHtml(c.id)}" ${selected}>${escapeHtml(c.name)}</option>`;
+        }
+        catSelect.innerHTML = catOptions;
+
+        const listEl = document.getElementById('productsManageList');
+        const query = state.productManageSearchQuery.trim().toLowerCase();
+        const catFilter = state.productManageCatFilter;
+
+        const filtered = state.products.filter(p => {
+          if (catFilter !== 'all' && p.categoryId !== catFilter) return false;
+          if (query && !p.name.toLowerCase().includes(query)) return false;
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          listEl.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">No products found.</div>`;
+          return;
+        }
+
+        let html = '';
+        for (let i = 0; i < filtered.length; i++) {
+          const p = filtered[i];
+          const isEnabled = p.status === 'enabled';
+          const catName = getCategoryName(p.categoryId);
+          const typeBadgeClass = p.pricingType === 'piece' ? 'badge-piece' : 'badge-weight';
+          const typeLabel = p.pricingType === 'piece' ? 'Piece' : 'Weight';
+          const priceLabel = p.pricingType === 'piece'
+            ? `${formatCurrency(p.price)} / piece`
+            : `${formatCurrency(p.price)} / kg`;
+
+          html += `
+            <div class="data-list-item ${isEnabled ? '' : 'disabled-item'}" data-prod-id="${escapeHtml(p.id)}">
+              <div class="item-main-col">
+                <div class="item-title-row">
+                  <span class="item-title">${escapeHtml(p.name)}</span>
+                  <span class="badge badge-cat">${escapeHtml(catName)}</span>
+                  <span class="badge ${typeBadgeClass}">${typeLabel}</span>
+                  ${!isEnabled ? '<span class="badge badge-disabled">Disabled</span>' : ''}
+                </div>
+                <div class="item-price-meta">${escapeHtml(priceLabel)}</div>
+              </div>
+              <div class="item-actions-col">
+                <button type="button" class="btn btn-secondary btn-sm" data-prod-action="toggle">
+                  ${isEnabled ? 'Disable' : 'Enable'}
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" data-prod-action="edit">Edit</button>
+                <button type="button" class="btn btn-danger-outline btn-sm" data-prod-action="delete">Delete</button>
+              </div>
+            </div>
+          `;
+        }
+        listEl.innerHTML = html;
+      }
+
+      /* -------------------- CATEGORIES MANAGEMENT RENDER -------------------- */
+      function renderCategoriesManagement() {
+        const listEl = document.getElementById('categoriesManageList');
+        if (state.categories.length === 0) {
+          listEl.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">No categories available. Add a category to begin.</div>`;
+          return;
+        }
+
+        let html = '';
+        for (let i = 0; i < state.categories.length; i++) {
+          const cat = state.categories[i];
+          const assignedCount = state.products.filter(p => p.categoryId === cat.id).length;
+          const countLabel = assignedCount === 1 ? '1 product' : `${assignedCount} products`;
+
+          html += `
+            <div class="data-list-item" data-cat-id="${escapeHtml(cat.id)}">
+              <div class="item-main-col">
+                <div class="item-title-row">
+                  <span class="item-title">${escapeHtml(cat.name)}</span>
+                  <span class="badge badge-piece">${countLabel}</span>
+                </div>
+              </div>
+              <div class="item-actions-col">
+                <button type="button" class="btn btn-secondary btn-sm" data-cat-action="assign">Assign Products</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-cat-action="rename">Rename</button>
+                <button type="button" class="btn btn-danger-outline btn-sm" data-cat-action="delete">Delete</button>
+              </div>
+            </div>
+          `;
+        }
+        listEl.innerHTML = html;
+      }
+
+      /* -------------------- SETTINGS RENDER -------------------- */
+      function renderSettingsForm() {
+        document.getElementById('settingShopName').value = state.settings.shopName;
+        document.getElementById('settingCurrency').value = state.settings.currency;
+        document.getElementById('settingsError').classList.remove('visible');
+      }
+
+      /* ===================================================================
+         7. BILLING ACTIONS & WEIGHT POPUP LOGIC
+         =================================================================== */
+      function handleProductTapInBilling(productId) {
+        const product = state.products.find(p => p.id === productId && p.status === 'enabled');
+        if (!product) return;
+
+        if (product.pricingType === 'piece') {
+          addPieceProductToBill(product);
+        } else {
+          openWeightPopupForProduct(product, null);
+        }
+      }
+
+      function addPieceProductToBill(product) {
+        const existing = state.currentBill.find(
+          item => item.productId === product.id && item.pricingType === 'piece'
+        );
+
+        if (existing) {
+          existing.quantity += 1;
+          existing.unitPrice = product.price;
+          existing.amount = Math.round((existing.quantity * existing.unitPrice + Number.EPSILON) * 100) / 100;
+        } else {
+          state.currentBill.push({
+            billItemId: generateId('bill'),
+            productId: product.id,
+            name: product.name,
+            pricingType: 'piece',
+            unitPrice: product.price,
+            quantity: 1,
+            weightGrams: 0,
+            amount: product.price
+          });
+        }
+
+        saveBill();
+        renderBillingProducts();
+        renderRunningBill();
+      }
+
+      function openWeightPopupForProduct(product, existingBillItem) {
+        state.weightContext.product = product;
+        state.weightContext.editingBillItemId = existingBillItem ? existingBillItem.billItemId : null;
+        state.weightContext.mode = 'weight';
+
+        document.getElementById('weightModalTitle').textContent = product.name;
+        document.getElementById('weightModalRate').textContent = `${formatCurrency(product.price)} / kg`;
+        document.getElementById('weightSubmitBtn').textContent = existingBillItem ? 'Update Bill' : 'Add to Bill';
+        document.getElementById('weightModalError').classList.remove('visible');
+
+        const inputEl = document.getElementById('weightModalInput');
+        inputEl.value = existingBillItem ? Math.round(existingBillItem.weightGrams) : '';
+
+        setWeightModalMode('weight', false);
+        updateWeightLiveCalculation();
+        openModal('weight');
+
+        setTimeout(() => {
+          inputEl.focus();
+          inputEl.select();
+        }, 40);
+      }
+
+      function setWeightModalMode(mode, clearInput) {
+        state.weightContext.mode = mode;
+        const btnWeight = document.getElementById('modeBtnWeight');
+        const btnAmount = document.getElementById('modeBtnAmount');
+        const label = document.getElementById('weightInputLabel');
+        const input = document.getElementById('weightModalInput');
+        const presetsContainer = document.getElementById('weightPresetsContainer');
+
+        btnWeight.classList.toggle('active', mode === 'weight');
+        btnAmount.classList.toggle('active', mode === 'amount');
+
+        if (mode === 'weight') {
+          label.textContent = 'Enter Weight in Grams (g)';
+          input.placeholder = 'e.g. 500 or 720';
+          presetsContainer.innerHTML = WEIGHT_PRESETS_GRAMS.map(
+            g => `<button type="button" class="preset-chip" data-preset-val="${g}">${g >= 1000 ? (g / 1000) + 'kg (' + g + 'g)' : g + 'g'}</button>`
+          ).join('');
+        } else {
+          label.textContent = `Enter Amount (${state.settings.currency})`;
+          input.placeholder = 'e.g. 50';
+          presetsContainer.innerHTML = WEIGHT_PRESETS_AMOUNT.map(
+            amt => `<button type="button" class="preset-chip" data-preset-val="${amt}">${state.settings.currency}${amt}</button>`
+          ).join('');
+        }
+
+        if (clearInput) {
+          input.value = '';
+          input.focus();
+        }
+        updateWeightLiveCalculation();
+      }
+
+      function calculateWeightAndAmount(rawValue, pricePerKg, mode) {
+        const val = parseFloat(rawValue);
+        if (isNaN(val) || val <= 0 || pricePerKg <= 0) {
+          return { valid: false, grams: 0, kg: 0, amount: 0 };
+        }
+
+        if (mode === 'weight') {
+          const grams = val;
+          const kg = grams / 1000;
+          const amount = Math.round((kg * pricePerKg + Number.EPSILON) * 100) / 100;
+          return { valid: true, grams, kg, amount };
+        } else {
+          const amount = Math.round((val + Number.EPSILON) * 100) / 100;
+          const kg = amount / pricePerKg;
+          const grams = Math.round((kg * 1000 + Number.EPSILON) * 100) / 100;
+          return { valid: true, grams, kg, amount };
+        }
+      }
+
+      function updateWeightLiveCalculation() {
+        const product = state.weightContext.product;
+        if (!product) return;
+
+        const rawVal = document.getElementById('weightModalInput').value;
+        const calc = calculateWeightAndAmount(rawVal, product.price, state.weightContext.mode);
+
+        const detailsEl = document.getElementById('weightCalcDetails');
+        const totalEl = document.getElementById('weightCalcTotal');
+
+        if (!calc.valid) {
+          detailsEl.textContent = '0g (0 kg)';
+          totalEl.textContent = formatCurrency(0);
+          return;
+        }
+
+        detailsEl.textContent = `${formatGramsDisplay(calc.grams)} (${formatNumber(calc.kg)} kg)`;
+        totalEl.textContent = formatCurrency(calc.amount);
+      }
+
+      function handleWeightFormSubmit(event) {
+        event.preventDefault();
+        const product = state.weightContext.product;
+        if (!product) return;
+
+        const rawVal = document.getElementById('weightModalInput').value;
+        const calc = calculateWeightAndAmount(rawVal, product.price, state.weightContext.mode);
+        const errorEl = document.getElementById('weightModalError');
+
+        if (!calc.valid || calc.grams <= 0 || calc.amount <= 0) {
+          errorEl.textContent = state.weightContext.mode === 'weight'
+            ? 'Please enter a valid weight in grams greater than 0.'
+            : 'Please enter a valid amount greater than 0.';
+          errorEl.classList.add('visible');
+          return;
+        }
+
+        errorEl.classList.remove('visible');
+
+        if (state.weightContext.editingBillItemId) {
+          const item = state.currentBill.find(b => b.billItemId === state.weightContext.editingBillItemId);
+          if (item) {
+            item.weightGrams = calc.grams;
+            item.amount = calc.amount;
+            item.unitPrice = product.price;
+          }
+        } else {
+          const existing = state.currentBill.find(
+            b => b.productId === product.id && b.pricingType === 'weight'
+          );
+          if (existing) {
+            existing.weightGrams = Math.round((existing.weightGrams + calc.grams + Number.EPSILON) * 100) / 100;
+            existing.unitPrice = product.price;
+            existing.amount = Math.round(((existing.weightGrams / 1000) * product.price + Number.EPSILON) * 100) / 100;
+          } else {
+            state.currentBill.push({
+              billItemId: generateId('bill'),
+              productId: product.id,
+              name: product.name,
+              pricingType: 'weight',
+              unitPrice: product.price,
+              quantity: 1,
+              weightGrams: calc.grams,
+              amount: calc.amount
+            });
+          }
+        }
+
+        saveBill();
+        renderBillingProducts();
+        renderRunningBill();
+        closeActiveModal();
+      }
+
+      function handleBillItemAction(billItemId, action) {
+        const index = state.currentBill.findIndex(b => b.billItemId === billItemId);
+        if (index === -1) return;
+        const item = state.currentBill[index];
+
+        if (action === 'remove') {
+          state.currentBill.splice(index, 1);
+        } else if (action === 'inc' && item.pricingType === 'piece') {
+          item.quantity += 1;
+          item.amount = Math.round((item.quantity * item.unitPrice + Number.EPSILON) * 100) / 100;
+        } else if (action === 'dec' && item.pricingType === 'piece') {
+          if (item.quantity > 1) {
+            item.quantity -= 1;
+            item.amount = Math.round((item.quantity * item.unitPrice + Number.EPSILON) * 100) / 100;
+          } else {
+            state.currentBill.splice(index, 1);
+          }
+        } else if (action === 'inc-weight' && item.pricingType === 'weight') {
+          item.weightGrams = Math.round(item.weightGrams + 50);
+          item.amount = Math.round(((item.weightGrams / 1000) * item.unitPrice + Number.EPSILON) * 100) / 100;
+        } else if (action === 'dec-weight' && item.pricingType === 'weight') {
+          if (item.weightGrams > 50) {
+            item.weightGrams = Math.round(item.weightGrams - 50);
+            item.amount = Math.round(((item.weightGrams / 1000) * item.unitPrice + Number.EPSILON) * 100) / 100;
+          } else {
+            state.currentBill.splice(index, 1);
+          }
+        } else if (action === 'edit-weight' && item.pricingType === 'weight') {
+          const prod = state.products.find(p => p.id === item.productId) || {
+            id: item.productId,
+            name: item.name,
+            price: item.unitPrice,
+            pricingType: 'weight'
+          };
+          openWeightPopupForProduct(prod, item);
+          return;
+        }
+
+        saveBill();
+        renderBillingProducts();
+        renderRunningBill();
+      }
+
+      function requestNewBillConfirmation() {
+        if (state.currentBill.length === 0) {
+          showStatusToast('Bill is already empty.');
+          return;
+        }
+        openConfirmDialog(
+          'Start New Bill',
+          'Are you sure you want to clear the current bill and start a new bill?',
+          'Clear Bill',
+          function () {
+            state.currentBill = [];
+            saveBill();
+            renderBillingProducts();
+            renderRunningBill();
+            showStatusToast('New bill started.');
+          }
+        );
+      }
+
+      /* ===================================================================
+         8. PRODUCTS CRUD & VALIDATION
+         =================================================================== */
+      function populateCategorySelect(selectEl, selectedId) {
+        let html = '';
+        for (let i = 0; i < state.categories.length; i++) {
+          const cat = state.categories[i];
+          const sel = cat.id === selectedId ? 'selected' : '';
+          html += `<option value="${escapeHtml(cat.id)}" ${sel}>${escapeHtml(cat.name)}</option>`;
+        }
+        selectEl.innerHTML = html;
+      }
+
+      function updateProductPriceFieldLabel() {
+        const type = document.getElementById('prodFormType').value;
+        const label = document.getElementById('prodFormPriceLabel');
+        label.textContent = type === 'piece'
+          ? `Price per Piece (${state.settings.currency})`
+          : `Price per Kg (${state.settings.currency})`;
+      }
+
+      function openProductFormModal(productToEdit) {
+        if (state.categories.length === 0) {
+          showStatusToast('Please create at least one category first.');
+          return;
+        }
+
+        const errorEl = document.getElementById('productFormError');
+        errorEl.classList.remove('visible');
+
+        const titleEl = document.getElementById('productModalTitle');
+        const idInput = document.getElementById('prodFormId');
+        const nameInput = document.getElementById('prodFormName');
+        const catSelect = document.getElementById('prodFormCategory');
+        const typeSelect = document.getElementById('prodFormType');
+        const priceInput = document.getElementById('prodFormPrice');
+        const statusSelect = document.getElementById('prodFormStatus');
+
+        if (productToEdit) {
+          titleEl.textContent = 'Edit Product';
+          idInput.value = productToEdit.id;
+          nameInput.value = productToEdit.name;
+          populateCategorySelect(catSelect, productToEdit.categoryId);
+          typeSelect.value = productToEdit.pricingType;
+          priceInput.value = productToEdit.price;
+          statusSelect.value = productToEdit.status;
+        } else {
+          titleEl.textContent = 'Add Product';
+          idInput.value = '';
+          nameInput.value = '';
+          const defaultCat = state.productManageCatFilter !== 'all'
+            ? state.productManageCatFilter
+            : state.categories[0].id;
+          populateCategorySelect(catSelect, defaultCat);
+          typeSelect.value = 'piece';
+          priceInput.value = '';
+          statusSelect.value = 'enabled';
+        }
+
+        updateProductPriceFieldLabel();
+        openModal('product-form');
+        setTimeout(() => nameInput.focus(), 40);
+      }
+
+      function handleProductFormSubmit(event) {
+        event.preventDefault();
+        const errorEl = document.getElementById('productFormError');
+        const id = document.getElementById('prodFormId').value.trim();
+        const name = document.getElementById('prodFormName').value.trim();
+        const categoryId = document.getElementById('prodFormCategory').value;
+        const pricingType = document.getElementById('prodFormType').value;
+        const priceVal = parseFloat(document.getElementById('prodFormPrice').value);
+        const status = document.getElementById('prodFormStatus').value;
+
+        if (!name) {
+          errorEl.textContent = 'Product name cannot be empty.';
+          errorEl.classList.add('visible');
+          return;
+        }
+
+        if (isNaN(priceVal) || priceVal <= 0) {
+          errorEl.textContent = 'Please enter a valid price greater than 0.';
+          errorEl.classList.add('visible');
+          return;
+        }
+
+        const duplicate = state.products.some(
+          p => p.id !== id &&
+               p.categoryId === categoryId &&
+               p.name.trim().toLowerCase() === name.toLowerCase()
+        );
+
+        if (duplicate) {
+          errorEl.textContent = `"${name}" already exists in this category.`;
+          errorEl.classList.add('visible');
+          return;
+        }
+
+        const cleanPrice = Math.round((priceVal + Number.EPSILON) * 100) / 100;
+
+        if (id) {
+          const existing = state.products.find(p => p.id === id);
+          if (existing) {
+            existing.name = name;
+            existing.categoryId = categoryId;
+            existing.pricingType = pricingType;
+            existing.price = cleanPrice;
+            existing.status = status;
+          }
+          showStatusToast('Product updated.');
+        } else {
+          state.products.push({
+            id: generateId('prd'),
+            name,
+            categoryId,
+            pricingType,
+            price: cleanPrice,
+            status
+          });
+          showStatusToast('Product added.');
+        }
+
+        saveProducts();
+        renderProductsManagement();
+        closeActiveModal();
+      }
+
+      function handleProductRowAction(productId, action) {
+        const product = state.products.find(p => p.id === productId);
+        if (!product) return;
+
+        if (action === 'toggle') {
+          product.status = product.status === 'enabled' ? 'disabled' : 'enabled';
+          saveProducts();
+          renderProductsManagement();
+          showStatusToast(`${product.name} ${product.status}.`);
+        } else if (action === 'edit') {
+          openProductFormModal(product);
+        } else if (action === 'delete') {
+          openConfirmDialog(
+            'Delete Product',
+            `Are you sure you want to delete "${product.name}"?`,
+            'Delete Product',
+            function () {
+              state.products = state.products.filter(p => p.id !== productId);
+              saveProducts();
+              renderProductsManagement();
+              showStatusToast('Product deleted.');
+            }
+          );
+        }
+      }
+
+      /* ===================================================================
+         9. CATEGORIES CRUD & PRODUCT ASSIGNMENT
+         =================================================================== */
+      function openCategoryFormModal(categoryToEdit) {
+        const errorEl = document.getElementById('categoryFormError');
+        errorEl.classList.remove('visible');
+
+        const titleEl = document.getElementById('categoryModalTitle');
+        const idInput = document.getElementById('catFormId');
+        const nameInput = document.getElementById('catFormName');
+
+        if (categoryToEdit) {
+          titleEl.textContent = 'Rename Category';
+          idInput.value = categoryToEdit.id;
+          nameInput.value = categoryToEdit.name;
+        } else {
+          titleEl.textContent = 'Add Category';
+          idInput.value = '';
+          nameInput.value = '';
+        }
+
+        openModal('category-form');
+        setTimeout(() => nameInput.focus(), 40);
+      }
+
+      function handleCategoryFormSubmit(event) {
+        event.preventDefault();
+        const errorEl = document.getElementById('categoryFormError');
+        const id = document.getElementById('catFormId').value.trim();
+        const name = document.getElementById('catFormName').value.trim();
+
+        if (!name) {
+          errorEl.textContent = 'Category name cannot be empty.';
+          errorEl.classList.add('visible');
+          return;
+        }
+
+        const duplicate = state.categories.some(
+          c => c.id !== id && c.name.trim().toLowerCase() === name.toLowerCase()
+        );
+        if (duplicate) {
+          errorEl.textContent = `Category "${name}" already exists.`;
+          errorEl.classList.add('visible');
+          return;
+        }
+
+        if (id) {
+          const cat = state.categories.find(c => c.id === id);
+          if (cat) cat.name = name;
+          showStatusToast('Category renamed.');
+        } else {
+          state.categories.push({
+            id: generateId('cat'),
+            name
+          });
+          showStatusToast('Category added.');
+        }
+
+        saveCategories();
+        renderCategoriesManagement();
+        closeActiveModal();
+      }
+
+      function openAssignProductsModal(category) {
+        document.getElementById('assignModalTitle').textContent = `Assign to "${category.name}"`;
+        document.getElementById('assignModalHint').textContent = `Check products below to move them into "${category.name}".`;
+        document.getElementById('assignCatId').value = category.id;
+
+        const checklist = document.getElementById('assignProductsChecklist');
+        if (state.products.length === 0) {
+          checklist.innerHTML = `<div style="padding:12px; color:var(--text-muted);">No products available.</div>`;
+        } else {
+          let html = '';
+          for (let i = 0; i < state.products.length; i++) {
+            const p = state.products[i];
+            const checked = p.categoryId === category.id ? 'checked' : '';
+            const currentCatName = getCategoryName(p.categoryId);
+            html += `
+              <label style="display:flex; align-items:center; gap:10px; padding:10px 8px; border-bottom:1px solid var(--border-color); cursor:pointer;">
+                <input type="checkbox" name="assignProd" value="${escapeHtml(p.id)}" ${checked} style="width:20px; height:20px; flex-shrink:0;">
+                <span style="font-weight:600; flex:1;">${escapeHtml(p.name)}</span>
+                <span class="badge badge-cat">${escapeHtml(currentCatName)}</span>
+              </label>
+            `;
+          }
+          checklist.innerHTML = html;
+        }
+
+        openModal('category-assign');
+      }
+
+      function handleCategoryAssignSubmit(event) {
+        event.preventDefault();
+        const targetCatId = document.getElementById('assignCatId').value;
+        const targetCat = state.categories.find(c => c.id === targetCatId);
+        if (!targetCat) return;
+
+        const checkedIds = new Set(
+          Array.from(document.querySelectorAll('#assignProductsChecklist input[name="assignProd"]:checked'))
+            .map(cb => cb.value)
+        );
+
+        for (let i = 0; i < state.products.length; i++) {
+          const p = state.products[i];
+          if (checkedIds.has(p.id) && p.categoryId !== targetCatId) {
+            const hasConflict = state.products.some(
+              other => other.id !== p.id &&
+                       other.categoryId === targetCatId &&
+                       other.name.toLowerCase() === p.name.toLowerCase()
+            );
+            if (!hasConflict) {
+              p.categoryId = targetCatId;
+            }
+          }
+        }
+
+        saveProducts();
+        renderCategoriesManagement();
+        closeActiveModal();
+        showStatusToast(`Updated products in ${targetCat.name}.`);
+      }
+
+      function handleCategoryRowAction(categoryId, action) {
+        const category = state.categories.find(c => c.id === categoryId);
+        if (!category) return;
+
+        if (action === 'rename') {
+          openCategoryFormModal(category);
+        } else if (action === 'assign') {
+          openAssignProductsModal(category);
+        } else if (action === 'delete') {
+          const assignedProducts = state.products.filter(p => p.categoryId === categoryId);
+          const msg = assignedProducts.length > 0
+            ? `Delete category "${category.name}"? The ${assignedProducts.length} product(s) inside it will be moved to another category.`
+            : `Are you sure you want to delete category "${category.name}"?`;
+
+          openConfirmDialog(
+            'Delete Category',
+            msg,
+            'Delete Category',
+            function () {
+              state.categories = state.categories.filter(c => c.id !== categoryId);
+
+              if (assignedProducts.length > 0) {
+                let fallbackCat = state.categories[0];
+                if (!fallbackCat) {
+                  fallbackCat = { id: generateId('cat'), name: 'General' };
+                  state.categories.push(fallbackCat);
+                }
+                assignedProducts.forEach(p => {
+                  p.categoryId = fallbackCat.id;
+                });
+                saveProducts();
+              }
+
+              saveCategories();
+              renderCategoriesManagement();
+              showStatusToast('Category deleted.');
+            }
+          );
+        }
+      }
+
+      /* ===================================================================
+         10. SETTINGS, EXPORT JSON, IMPORT JSON & CLEAR ALL DATA
+         =================================================================== */
+      function handleSettingsSave(event) {
+        event.preventDefault();
+        const errorEl = document.getElementById('settingsError');
+        const shopName = document.getElementById('settingShopName').value.trim();
+        const currency = document.getElementById('settingCurrency').value.trim();
+
+        if (!shopName) {
+          errorEl.textContent = 'Shop Name cannot be empty.';
+          errorEl.classList.add('visible');
+          return;
+        }
+        if (!currency) {
+          errorEl.textContent = 'Currency symbol cannot be empty.';
+          errorEl.classList.add('visible');
+          return;
+        }
+
+        errorEl.classList.remove('visible');
+        state.settings.shopName = shopName;
+        state.settings.currency = currency;
+        saveSettings();
+        renderAppHeader();
+        showStatusToast('Settings saved.');
+      }
+
+      function handleExportJson() {
+        const exportPayload = {
+          app: 'Thanigachalam Store',
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          settings: state.settings,
+          categories: state.categories,
+          products: state.products,
+          currentBill: state.currentBill
+        };
+
+        const jsonString = JSON.stringify(exportPayload, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const dateStr = new Date().toISOString().slice(0, 10);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `thanigachalam-store-backup-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showStatusToast('JSON backup exported.');
+      }
+
+      function handleImportJson(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const parsed = JSON.parse(e.target.result);
+            if (
+              !parsed ||
+              typeof parsed !== 'object' ||
+              !Array.isArray(parsed.categories) ||
+              !Array.isArray(parsed.products)
+            ) {
+              showStatusToast('Invalid backup JSON file format.');
+              return;
+            }
+
+            state.settings = {
+              shopName: (parsed.settings && parsed.settings.shopName) ? String(parsed.settings.shopName).trim() : DEFAULT_SETTINGS.shopName,
+              currency: (parsed.settings && parsed.settings.currency) ? String(parsed.settings.currency).trim() : DEFAULT_SETTINGS.currency
+            };
+            state.categories = parsed.categories;
+            state.products = parsed.products;
+            state.currentBill = Array.isArray(parsed.currentBill) ? parsed.currentBill : [];
+
+            saveSettings();
+            saveCategories();
+            saveProducts();
+            saveBill();
+
+            renderActivePage();
+            showStatusToast('Backup imported and restored!');
+          } catch (err) {
+            console.error('Import error:', err);
+            showStatusToast('Failed to read JSON file.');
+          } finally {
+            event.target.value = '';
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function handleClearAllDataRequest() {
+        openConfirmDialog(
+          'Clear All Data',
+          'This will permanently delete all products, categories, current bill, and reset settings. Do you want to continue?',
+          'Clear Everything',
+          function () {
+            state.settings = { ...DEFAULT_SETTINGS };
+            state.categories = [];
+            state.products = [];
+            state.currentBill = [];
+
+            saveSettings();
+            saveCategories();
+            saveProducts();
+            saveBill();
+
+            renderActivePage();
+            showStatusToast('All data cleared.');
+          }
+        );
+      }
+
+      /* ===================================================================
+         11. EVENT LISTENERS (DELEGATED & MODULAR)
+         =================================================================== */
+      function bindEvents() {
+        // Keep sticky header offset accurate on window resize / orientation change
+        window.addEventListener('resize', syncStickyHeaderHeight);
+
+        // Top Navigation Bar (Delegation)
+        document.getElementById('mainNav').addEventListener('click', function (e) {
+          const btn = e.target.closest('[data-nav]');
+          if (!btn) return;
+          navigateToPage(btn.getAttribute('data-nav'));
+        });
+
+        // Billing Search Input & Clear
+        const billingSearch = document.getElementById('billingSearchInput');
+        const billingSearchClear = document.getElementById('billingSearchClear');
+        billingSearch.addEventListener('input', function () {
+          state.billingSearchQuery = billingSearch.value;
+          billingSearchClear.classList.toggle('visible', billingSearch.value.length > 0);
+          renderBillingProducts();
+        });
+        billingSearchClear.addEventListener('click', function () {
+          billingSearch.value = '';
+          state.billingSearchQuery = '';
+          billingSearchClear.classList.remove('visible');
+          renderBillingProducts();
+          billingSearch.focus();
+        });
+
+        // Billing Category Filter Pills (Delegation)
+        document.getElementById('billingCategoryBar').addEventListener('click', function (e) {
+          const pill = e.target.closest('[data-cat-id]');
+          if (!pill) return;
+          state.billingCategoryFilter = pill.getAttribute('data-cat-id');
+          renderBillingCategories();
+          renderBillingProducts();
+        });
+
+        // Billing Product Grid Tap (Delegation)
+        document.getElementById('billingProductGrid').addEventListener('click', function (e) {
+          const card = e.target.closest('[data-product-id]');
+          if (!card) return;
+          handleProductTapInBilling(card.getAttribute('data-product-id'));
+        });
+
+        // Running Bill Item Controls (Delegation)
+        document.getElementById('billItemsList').addEventListener('click', function (e) {
+          const btn = e.target.closest('[data-bill-action]');
+          if (!btn) return;
+          const row = btn.closest('[data-bill-id]');
+          if (!row) return;
+          handleBillItemAction(row.getAttribute('data-bill-id'), btn.getAttribute('data-bill-action'));
+        });
+
+        // New Bill Buttons
+        document.getElementById('btnNewBillTop').addEventListener('click', requestNewBillConfirmation);
+        document.getElementById('btnNewBillBottom').addEventListener('click', requestNewBillConfirmation);
+        document.getElementById('btnStickyNewBill').addEventListener('click', requestNewBillConfirmation);
+
+        // Sticky Mobile View Bill Jump (respects sticky header offset via scroll-margin-top)
+        function scrollToRunningBill() {
+          syncStickyHeaderHeight();
+          const billPanel = document.getElementById('runningBillPanel');
+          if (billPanel) {
+            billPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+        document.getElementById('btnStickyViewBill').addEventListener('click', scrollToRunningBill);
+        document.getElementById('stickyScrollToBill').addEventListener('click', scrollToRunningBill);
+
+        // Weight Modal Mode Tabs & Presets & Live Input
+        document.querySelectorAll('[data-weight-mode]').forEach(btn => {
+          btn.addEventListener('click', function () {
+            setWeightModalMode(btn.getAttribute('data-weight-mode'), true);
+          });
+        });
+
+        document.getElementById('weightPresetsContainer').addEventListener('click', function (e) {
+          const chip = e.target.closest('[data-preset-val]');
+          if (!chip) return;
+          const input = document.getElementById('weightModalInput');
+          input.value = chip.getAttribute('data-preset-val');
+          updateWeightLiveCalculation();
+        });
+
+        document.getElementById('weightModalInput').addEventListener('input', updateWeightLiveCalculation);
+        document.getElementById('weightEntryForm').addEventListener('submit', handleWeightFormSubmit);
+
+        // Products Management Events
+        document.getElementById('btnOpenAddProduct').addEventListener('click', function () {
+          openProductFormModal(null);
+        });
+
+        const prodManageSearch = document.getElementById('productManageSearch');
+        const prodManageClear = document.getElementById('productManageSearchClear');
+        prodManageSearch.addEventListener('input', function () {
+          state.productManageSearchQuery = prodManageSearch.value;
+          prodManageClear.classList.toggle('visible', prodManageSearch.value.length > 0);
+          renderProductsManagement();
+        });
+        prodManageClear.addEventListener('click', function () {
+          prodManageSearch.value = '';
+          state.productManageSearchQuery = '';
+          prodManageClear.classList.remove('visible');
+          renderProductsManagement();
+          prodManageSearch.focus();
+        });
+
+        document.getElementById('productManageCatFilter').addEventListener('change', function (e) {
+          state.productManageCatFilter = e.target.value;
+          renderProductsManagement();
+        });
+
+        document.getElementById('productsManageList').addEventListener('click', function (e) {
+          const btn = e.target.closest('[data-prod-action]');
+          if (!btn) return;
+          const row = btn.closest('[data-prod-id]');
+          if (!row) return;
+          handleProductRowAction(row.getAttribute('data-prod-id'), btn.getAttribute('data-prod-action'));
+        });
+
+        document.getElementById('prodFormType').addEventListener('change', updateProductPriceFieldLabel);
+        document.getElementById('productForm').addEventListener('submit', handleProductFormSubmit);
+
+        // Categories Management Events
+        document.getElementById('btnOpenAddCategory').addEventListener('click', function () {
+          openCategoryFormModal(null);
+        });
+
+        document.getElementById('categoriesManageList').addEventListener('click', function (e) {
+          const btn = e.target.closest('[data-cat-action]');
+          if (!btn) return;
+          const row = btn.closest('[data-cat-id]');
+          if (!row) return;
+          handleCategoryRowAction(row.getAttribute('data-cat-id'), btn.getAttribute('data-cat-action'));
+        });
+
+        document.getElementById('categoryForm').addEventListener('submit', handleCategoryFormSubmit);
+        document.getElementById('categoryAssignForm').addEventListener('submit', handleCategoryAssignSubmit);
+
+        // Settings Events
+        document.getElementById('settingsForm').addEventListener('submit', handleSettingsSave);
+        document.getElementById('btnExportJson').addEventListener('click', handleExportJson);
+        document.getElementById('importJsonInput').addEventListener('change', handleImportJson);
+        document.getElementById('btnClearAllData').addEventListener('click', handleClearAllDataRequest);
+
+        // Confirm Modal Proceed Button
+        document.getElementById('btnConfirmProceed').addEventListener('click', function () {
+          const callback = state.confirmCallback;
+          closeActiveModal();
+          if (typeof callback === 'function') {
+            callback();
+          }
+        });
+
+        // Close Modal Buttons & Backdrop Click
+        document.addEventListener('click', function (e) {
+          const closeBtn = e.target.closest('[data-close-modal="true"]');
+          if (closeBtn) {
+            closeActiveModal();
+            return;
+          }
+          if (e.target.classList.contains('modal-backdrop') && e.target.classList.contains('open')) {
+            closeActiveModal();
+          }
+        });
+
+        // Escape Key closes any active modal
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && state.activeModal) {
+            closeActiveModal();
+          }
+        });
+      }
+
+      /* ===================================================================
+         12. INITIALIZATION
+         =================================================================== */
+      function initApp() {
+        loadFromStorage();
+        initNavigationHistory();
+        bindEvents();
+        renderActivePage();
+        syncStickyHeaderHeight();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
